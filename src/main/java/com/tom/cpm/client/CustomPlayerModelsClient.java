@@ -16,6 +16,10 @@ import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModLoadingContext;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.CommandSourceStack;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RegisterShadersEvent;
@@ -135,6 +139,20 @@ public class CustomPlayerModelsClient extends ClientBase {
 	@SubscribeEvent
 	public void onLogout(ClientPlayerNetworkEvent.LoggingOut evt) {
 		mc.onLogOut();
+	}
+
+	@SubscribeEvent
+	public void registerClientCommands(RegisterClientCommandsEvent event) {
+		event.getDispatcher().register(
+				Commands.literal("cpmclient")
+						.requires(s -> s.hasPermission(2))
+						.then(Commands.literal("open")
+								.executes(c -> {
+									Minecraft.getInstance().execute(() -> {
+										Minecraft.getInstance().setScreen(new GuiImpl(EditorGui::new, null));
+									});
+									return 1;
+								})));
 	}
 
 }
