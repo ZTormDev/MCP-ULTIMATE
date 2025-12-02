@@ -49,7 +49,8 @@ public class CustomPlayerModelsClient extends ClientBase {
 		init0();
 		NeoForge.EVENT_BUS.register(this);
 		init1();
-		ModLoadingContext.get().registerExtensionPoint(IConfigScreenFactory.class, () -> (mc, scr) -> new GuiImpl(SettingsGui::new, scr));
+		ModLoadingContext.get().registerExtensionPoint(IConfigScreenFactory.class,
+				() -> (mc, scr) -> new GuiImpl(SettingsGui::new, scr));
 	}
 
 	@SubscribeEvent
@@ -59,7 +60,8 @@ public class CustomPlayerModelsClient extends ClientBase {
 
 	@SubscribeEvent(priority = EventPriority.LOWEST, receiveCanceled = true)
 	public void playerRenderPreC(RenderPlayerEvent.Pre event) {
-		if(event.isCanceled())playerRenderPost(event.getMultiBufferSource(), event.getRenderer().getModel());
+		if (event.isCanceled())
+			playerRenderPost(event.getMultiBufferSource(), event.getRenderer().getModel());
 	}
 
 	@SubscribeEvent
@@ -69,12 +71,13 @@ public class CustomPlayerModelsClient extends ClientBase {
 
 	@SubscribeEvent
 	public void initGui(ScreenEvent.Init.Post evt) {
-		if((evt.getScreen() instanceof TitleScreen && ModConfig.getCommonConfig().getSetBoolean(ConfigKeys.TITLE_SCREEN_BUTTON, true)) ||
+		if ((evt.getScreen() instanceof TitleScreen
+				&& ModConfig.getCommonConfig().getSetBoolean(ConfigKeys.TITLE_SCREEN_BUTTON, true)) ||
 				evt.getScreen() instanceof SkinCustomizationScreen) {
 			Screen screen = evt.getScreen();
 			Button btn = Button.builder(Component.translatable("button.cpm.open_editor"),
-					b -> Minecraft.getInstance().setScreen(new GuiImpl(EditorGui::new, screen))
-					).bounds(0, 0, 100, 20).build();
+					b -> Minecraft.getInstance().setScreen(new GuiImpl(EditorGui::new, screen))).bounds(0, 0, 100, 20)
+					.build();
 			evt.addListener(btn);
 			((List) evt.getScreen().children()).add(btn);
 		}
@@ -87,7 +90,7 @@ public class CustomPlayerModelsClient extends ClientBase {
 
 	@SubscribeEvent
 	public void clientTickPre(ClientTickEvent.Pre evt) {
-		if(!minecraft.isPaused()) {
+		if (!minecraft.isPaused()) {
 			mc.getPlayerRenderManager().getAnimationEngine().tick();
 		}
 	}
@@ -97,20 +100,12 @@ public class CustomPlayerModelsClient extends ClientBase {
 		if (minecraft.player == null)
 			return;
 
-		if(KeyBindings.gestureMenuBinding.consumeClick()) {
-			Minecraft.getInstance().setScreen(new GuiImpl(GestureGui::new, null));
-		}
-
-		if(KeyBindings.renderToggleBinding.consumeClick()) {
-			Player.setEnableRendering(!Player.isEnableRendering());
-		}
-
 		mc.getPlayerRenderManager().getAnimationEngine().updateKeys(KeyBindings.quickAccess);
 	}
 
 	@SubscribeEvent
 	public void openGui(ScreenEvent.Opening openGui) {
-		if(openGui.getScreen() instanceof TitleScreen && EditorGui.doOpenEditor()) {
+		if (openGui.getScreen() instanceof TitleScreen && EditorGui.doOpenEditor()) {
 			openGui.setNewScreen(new GuiImpl(EditorGui::new, openGui.getScreen()));
 		}
 	}
@@ -129,9 +124,12 @@ public class CustomPlayerModelsClient extends ClientBase {
 		registerShaders((a, b, c) -> registerShader(evt, a, b, c));
 	}
 
-	private void registerShader(RegisterShadersEvent evt, String name, VertexFormat vertexFormat, Consumer<ShaderInstance> finish) {
+	private void registerShader(RegisterShadersEvent evt, String name, VertexFormat vertexFormat,
+			Consumer<ShaderInstance> finish) {
 		try {
-			evt.registerShader(new ShaderInstance(evt.getResourceProvider(), ResourceLocation.tryBuild("cpm", name), vertexFormat), finish);
+			evt.registerShader(
+					new ShaderInstance(evt.getResourceProvider(), ResourceLocation.tryBuild("cpm", name), vertexFormat),
+					finish);
 		} catch (IOException e) {
 			Log.error("Failed to load cpm '" + name + "' shader", e);
 		}
